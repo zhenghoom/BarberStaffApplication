@@ -1,0 +1,26 @@
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/drawable/badge_background.xml" value="0.1105" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/activity_main.xml" value="0.15547703180212014" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/activity_salon_list.xml" value="0.19635416666666666" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/activity_staff_home.xml" value="0.22509057971014493" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/layout_login.xml" value="0.26145833333333335" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/layout_notification.xml" value="0.264" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/layout_salon.xml" value="0.1953125" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/layout_state.xml" value="0.2625" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/layout_time_slot.xml" value="0.2625" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/layout/nav_header.xml" value="0.2153846153846154" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/menu/navigation_menu.xml" value="0.11354166666666667" />
+        <entry key="..\:/Users/ZhengHoom/AndroidStudioProjects/BarberStaffApplication/app/src/main/res/menu/staff_home_menu.xml" value="0.2625" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
