@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.barberstaffapplication.Common.Common;
 import com.example.barberstaffapplication.Fragments.ShoppingFragment;
+import com.example.barberstaffapplication.Fragments.TotalPriceFragment;
 import com.example.barberstaffapplication.Interface.IBarberServicesLoadListener;
 import com.example.barberstaffapplication.Interface.IOnShoppingItemSelected;
 import com.example.barberstaffapplication.Model.BarberServices;
@@ -46,6 +47,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -172,10 +174,14 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
                         String url = task.getResult().toString()
                                 .substring(0,task.getResult().toString().indexOf("&token"));
                         Log.d("DOWNLOADABLE_LINK", url);
-
-                        //Generate final billing here
-
                         dialog.dismiss();
+
+                        TotalPriceFragment fragment = TotalPriceFragment.getInstance();
+                        Bundle bundle = new Bundle();
+                        bundle.putString(Common.SERVICES_ADDED,new Gson().toJson(serviceAdded));
+                        bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
+                        fragment.setArguments(bundle);
+                        fragment.show(getSupportFragmentManager(),"Price");
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
