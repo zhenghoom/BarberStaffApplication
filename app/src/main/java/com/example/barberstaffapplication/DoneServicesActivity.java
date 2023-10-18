@@ -24,7 +24,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import com.example.barberstaffapplication.Common.Common;
 import com.example.barberstaffapplication.Fragments.ShoppingFragment;
 import com.example.barberstaffapplication.Fragments.TotalPriceFragment;
 import com.example.barberstaffapplication.Interface.IBarberServicesLoadListener;
+import com.example.barberstaffapplication.Interface.IBottomSheetDialogOnDismissListener;
 import com.example.barberstaffapplication.Interface.IOnShoppingItemSelected;
 import com.example.barberstaffapplication.Model.BarberServices;
 import com.example.barberstaffapplication.Model.ShoppingItem;
@@ -65,7 +68,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dmax.dialog.SpotsDialog;
 
-public class DoneServicesActivity extends AppCompatActivity implements IBarberServicesLoadListener, IOnShoppingItemSelected {
+public class DoneServicesActivity extends AppCompatActivity implements IBarberServicesLoadListener, IOnShoppingItemSelected, IBottomSheetDialogOnDismissListener {
 
     private static final int MY_CAMERA_REQUEST_CODE = 1000;
     @BindView(R.id.txt_customer_name)
@@ -84,6 +87,10 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
     ImageView add_shopping;
     @BindView(R.id.btn_finish)
     Button btn_finish;
+    @BindView(R.id.radio_no_picture)
+    RadioButton radio_no_picture;
+    @BindView(R.id.radio_picture)
+    RadioButton radio_picture;
 
     AlertDialog dialog;
 
@@ -113,12 +120,49 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
 
     private void initView() {
 
+        radio_picture.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)
+                {
+                    img_customer_hair.setVisibility(View.VISIBLE);
+                    btn_finish.setEnabled(false);
+
+                }
+            }
+        });
+
+        radio_no_picture.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)
+                {
+                    img_customer_hair.setVisibility(View.GONE);
+                    btn_finish.setEnabled(true);
+                }
+            }
+        });
+
         getSupportActionBar().setTitle("Checkout");
 
         btn_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadPicture(fileUri);
+                if(radio_no_picture.isChecked())
+                {
+                    dialog.dismiss();
+
+                    TotalPriceFragment fragment = TotalPriceFragment.getInstance(DoneServicesActivity.this);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(Common.SERVICES_ADDED,new Gson().toJson(serviceAdded));
+                    bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
+                    fragment.setArguments(bundle);
+                    fragment.show(getSupportFragmentManager(),"Price");
+                }
+                else
+                {
+                    uploadPicture(fileUri);
+                }
             }
         });
 
@@ -176,12 +220,14 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
                         Log.d("DOWNLOADABLE_LINK", url);
                         dialog.dismiss();
 
-                        TotalPriceFragment fragment = TotalPriceFragment.getInstance();
+                        TotalPriceFragment fragment = TotalPriceFragment.getInstance(DoneServicesActivity.this);
                         Bundle bundle = new Bundle();
                         bundle.putString(Common.SERVICES_ADDED,new Gson().toJson(serviceAdded));
                         bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
+                        bundle.putString(Common.IMAGE_DOWNLOADABLE_URL,url);
                         fragment.setArguments(bundle);
                         fragment.show(getSupportFragmentManager(),"Price");
+
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -390,5 +436,11 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
         Matrix matrix = new Matrix();
         matrix.postRotate(i);
         return Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+    }
+
+    @Override
+    public void onDismissBottomSheetDialog(boolean fromButton) {
+        if(fromButton)
+            finish();
     }
 }
