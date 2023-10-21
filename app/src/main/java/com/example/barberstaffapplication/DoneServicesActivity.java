@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -34,9 +33,10 @@ import com.example.barberstaffapplication.Common.Common;
 import com.example.barberstaffapplication.Fragments.ShoppingFragment;
 import com.example.barberstaffapplication.Fragments.TotalPriceFragment;
 import com.example.barberstaffapplication.Interface.IBarberServicesLoadListener;
-import com.example.barberstaffapplication.Interface.IBottomSheetDialogOnDismissListener;
 import com.example.barberstaffapplication.Interface.IOnShoppingItemSelected;
 import com.example.barberstaffapplication.Model.BarberServices;
+import com.example.barberstaffapplication.Model.CartItem;
+import com.example.barberstaffapplication.Model.EventBus.DismissFromBottomSheetEvent;
 import com.example.barberstaffapplication.Model.ShoppingItem;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,6 +51,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -68,7 +72,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dmax.dialog.SpotsDialog;
 
-public class DoneServicesActivity extends AppCompatActivity implements IBarberServicesLoadListener, IOnShoppingItemSelected, IBottomSheetDialogOnDismissListener {
+public class DoneServicesActivity extends AppCompatActivity implements IBarberServicesLoadListener, IOnShoppingItemSelected {
 
     private static final int MY_CAMERA_REQUEST_CODE = 1000;
     @BindView(R.id.txt_customer_name)
@@ -97,7 +101,7 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
     IBarberServicesLoadListener iBarberServicesLoadListener;
 
     HashSet<BarberServices> serviceAdded = new HashSet<>();
-    List<ShoppingItem> shoppingItems = new ArrayList<>();
+    //List<ShoppingItem> shoppingItems = new ArrayList<>();
     LayoutInflater inflater;
     Uri fileUri;
     StorageReference storageReference;
@@ -152,10 +156,10 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
                 {
                     dialog.dismiss();
 
-                    TotalPriceFragment fragment = TotalPriceFragment.getInstance(DoneServicesActivity.this);
+                    TotalPriceFragment fragment = TotalPriceFragment.getInstance();
                     Bundle bundle = new Bundle();
                     bundle.putString(Common.SERVICES_ADDED,new Gson().toJson(serviceAdded));
-                    bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
+                    //bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
                     fragment.setArguments(bundle);
                     fragment.show(getSupportFragmentManager(),"Price");
                 }
@@ -220,10 +224,10 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
                         Log.d("DOWNLOADABLE_LINK", url);
                         dialog.dismiss();
 
-                        TotalPriceFragment fragment = TotalPriceFragment.getInstance(DoneServicesActivity.this);
+                        TotalPriceFragment fragment = TotalPriceFragment.getInstance();
                         Bundle bundle = new Bundle();
                         bundle.putString(Common.SERVICES_ADDED,new Gson().toJson(serviceAdded));
-                        bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
+                        //bundle.putString(Common.SHOPPING_LIST,new Gson().toJson(shoppingItems));
                         bundle.putString(Common.IMAGE_DOWNLOADABLE_URL,url);
                         fragment.setArguments(bundle);
                         fragment.show(getSupportFragmentManager(),"Price");
@@ -357,7 +361,8 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
                 }
             }
         });
-        dialog.dismiss();
+
+        loadExtraItems();
     }
 
     @Override
@@ -369,22 +374,81 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
     @Override
     public void onShoppingItemSelected(ShoppingItem shoppingItem) {
         //Create list to hold shopping item
-        shoppingItems.add(shoppingItem);
-        Log.d("ShoppingItem", ""+shoppingItems.size());
+        //shoppingItems.add(shoppingItem);
+        //Log.d("ShoppingItem", ""+shoppingItems.size());
 
-        Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
-        item.setText(shoppingItem.getName());
-        item.setTag(shoppingItems.indexOf(shoppingItem));
-        edt_services.setText("");
+        //Create new cart item
+        CartItem cartItem = new CartItem();
+        cartItem.setProductId(shoppingItem.getId());
+        cartItem.setProductImage(shoppingItem.getImage());
+        cartItem.setProductName(shoppingItem.getName());
+        cartItem.setProductPrice(shoppingItem.getPrice());
+        cartItem.setProductQuantity(1);
+        cartItem.setUserPhone(Common.currentBookingInformation.getCustomerPhone());
 
-        item.setOnCloseIconClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chip_group_shopping.removeView(view);
-                shoppingItems.remove((int) item.getTag());
+        if(Common.currentBookingInformation.getCartItemList() == null) //if user submit with empty cart
+            Common.currentBookingInformation.setCartItemList(new ArrayList<CartItem>());
+
+        boolean flag = false; //update cart item quantity increase by 1 if have same item in cart
+
+        for(int i=0;i<Common.currentBookingInformation.getCartItemList().size();i++)
+        {
+            if(Common.currentBookingInformation.getCartItemList().get(i).getProductName()
+                    .equals(shoppingItem.getName()))
+            {
+                flag = true;
+                CartItem itemUpdate = Common.currentBookingInformation.getCartItemList().get(i);
+                itemUpdate.setProductQuantity(itemUpdate.getProductQuantity()+1);
+                Common.currentBookingInformation.getCartItemList().set(i,itemUpdate); //update list
             }
-        });
-        chip_group_shopping.addView(item);
+        }
+        if(!flag) //add item
+        {
+            Common.currentBookingInformation.getCartItemList().add(cartItem);
+            Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+            item.setText(cartItem.getProductName());
+            item.setTag(Common.currentBookingInformation.getCartItemList().indexOf(cartItem));
+
+            item.setOnCloseIconClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    chip_group_shopping.removeView(view);
+                    Common.currentBookingInformation.getCartItemList().remove((int)item.getTag());
+                }
+            });
+            chip_group_shopping.addView(item);
+        }
+        else //update item
+        {
+            chip_group_shopping.removeAllViews();
+            loadExtraItems();
+        }
+
+
+    }
+
+    private void loadExtraItems() {
+        if(Common.currentBookingInformation.getCartItemList() != null)
+        {
+            for(CartItem cartItem:Common.currentBookingInformation.getCartItemList())
+            {
+                Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+                item.setText(new StringBuilder(cartItem.getProductName())
+                        .append(" x")
+                        .append(cartItem.getProductQuantity()));
+                item.setTag(Common.currentBookingInformation.getCartItemList().indexOf(cartItem));
+
+                item.setOnCloseIconClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        chip_group_shopping.removeView(view);
+                        Common.currentBookingInformation.getCartItemList().remove((int)item.getTag());
+                    }
+                });
+                chip_group_shopping.addView(item);
+            }
+        }
+        dialog.dismiss();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -438,9 +502,22 @@ public class DoneServicesActivity extends AppCompatActivity implements IBarberSe
         return Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
     }
 
-    @Override
-    public void onDismissBottomSheetDialog(boolean fromButton) {
-        if(fromButton)
+    //Switch to eventbus
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void dismissDialog(DismissFromBottomSheetEvent event){
+        if(event.isButtonClick())
             finish();
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 }

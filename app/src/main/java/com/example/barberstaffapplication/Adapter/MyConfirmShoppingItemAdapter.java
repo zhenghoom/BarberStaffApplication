@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.barberstaffapplication.Model.CartItem;
 import com.example.barberstaffapplication.Model.ShoppingItem;
 import com.example.barberstaffapplication.R;
 import com.squareup.picasso.Picasso;
@@ -22,9 +23,9 @@ import butterknife.ButterKnife;
 public class MyConfirmShoppingItemAdapter extends RecyclerView.Adapter<MyConfirmShoppingItemAdapter.MyViewHolder> {
 
     Context context;
-    List<ShoppingItem> shoppingItemList;
+    List<CartItem> shoppingItemList;
 
-    public MyConfirmShoppingItemAdapter(Context context, List<ShoppingItem> shoppingItemList) {
+    public MyConfirmShoppingItemAdapter(Context context, List<CartItem> shoppingItemList) {
         this.context = context;
         this.shoppingItemList = shoppingItemList;
     }
@@ -39,9 +40,11 @@ public class MyConfirmShoppingItemAdapter extends RecyclerView.Adapter<MyConfirm
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int i) {
         Picasso.get()
-                .load(shoppingItemList.get(i).getImage())
+                .load(shoppingItemList.get(i).getProductImage())
                 .into(holder.item_image);
-        holder.txt_name.setText(shoppingItemList.get(i).getName());
+        holder.txt_name.setText(new StringBuilder(shoppingItemList.get(i).getProductName())
+                .append(" x")
+                .append(shoppingItemList.get(i).getProductQuantity()));
 
     }
 
