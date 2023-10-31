@@ -155,7 +155,7 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
                             else
                             {
                                 loading.dismiss();
-                                Toast.makeText(context, "Wrong username/password or Wrong Salon", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Wrong username/password or salon!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }

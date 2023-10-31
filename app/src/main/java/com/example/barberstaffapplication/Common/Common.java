@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.barberstaffapplication.Model.Barber;
 import com.example.barberstaffapplication.Model.BookingInformation;
+import com.example.barberstaffapplication.Model.Invoice;
 import com.example.barberstaffapplication.Model.MyToken;
 import com.example.barberstaffapplication.Model.Salon;
 import com.example.barberstaffapplication.R;
@@ -60,6 +61,7 @@ public class Common {
     public static Calendar bookingDate=Calendar.getInstance();
     public static Salon currentSalon;
     public static BookingInformation currentBookingInformation;
+    public static Invoice currentInvoice; //testing
 
     public static String convertTimeSlotToString(int slot) {
         switch(slot)

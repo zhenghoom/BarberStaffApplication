@@ -121,7 +121,9 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if(item.getItemId() == R.id.menu_exit)
+                if(item.getItemId() == R.id.menu_dashboard)
+                    startActivity(new Intent(StaffHomeActivity.this, DashboardActivity.class));
+                else if (item.getItemId() == R.id.menu_exit)
                     logOut();
                 return true;
             }
