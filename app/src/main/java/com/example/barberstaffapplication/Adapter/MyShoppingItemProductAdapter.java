@@ -22,13 +22,13 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
-public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAdapter.MyViewHolder>{
+public class MyShoppingItemProductAdapter extends RecyclerView.Adapter<MyShoppingItemProductAdapter.MyViewHolder>{
 
     Context context;
     List<ShoppingItem> shoppingItemList;
     IOnShoppingItemSelected iOnShoppingItemSelected;
 
-    public MyShoppingItemAdapter(Context context, List<ShoppingItem> shoppingItemList,IOnShoppingItemSelected iOnShoppingItemSelected) {
+    public MyShoppingItemProductAdapter(Context context, List<ShoppingItem> shoppingItemList,IOnShoppingItemSelected iOnShoppingItemSelected) {
         this.context = context;
         this.shoppingItemList = shoppingItemList;
         this.iOnShoppingItemSelected = iOnShoppingItemSelected;
@@ -53,7 +53,6 @@ public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAd
             @Override
             public void onItemSelectedListener(View view, int pos) {
                 iOnShoppingItemSelected.onShoppingItemSelected(shoppingItemList.get(pos));
-                Toast.makeText(context, "Item Added!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -81,7 +80,7 @@ public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAd
             txt_shopping_item_price = (TextView)itemView.findViewById(R.id.txt_price_shopping_item);
             txt_add_to_cart = (TextView)itemView.findViewById(R.id.txt_add_to_cart);
 
-            txt_add_to_cart.setOnClickListener(this);
+            txt_add_to_cart.setVisibility(View.GONE);
         }
 
         @Override

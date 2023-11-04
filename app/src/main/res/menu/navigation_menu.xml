@@ -5,9 +5,15 @@
         android:icon="@drawable/baseline_insert_chart_24"
         android:title="Dashboard"/>
 
+    <item android:id="@+id/menu_inventory"
+        android:icon="@drawable/baseline_inventory_24"
+        android:title="Inventory"/>
+
     <item android:id="@+id/menu_exit"
         android:icon="@drawable/ic_baseline_exit_to_app_24"
         android:title="Exit"/>
+
+
 
 
 </menu>

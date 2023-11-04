@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.barberstaffapplication.Common.Common;
+import com.example.barberstaffapplication.Model.BarberServices;
 import com.example.barberstaffapplication.Model.CartItem;
 import com.example.barberstaffapplication.Model.Invoice;
 import com.example.barberstaffapplication.Model.ShoppingItem;
@@ -47,13 +49,37 @@ import java.util.Objects;
 
 public class DashboardActivity extends AppCompatActivity {
 
-     HashMap<String, Integer> productNameToCount = new HashMap<String, Integer>();
+    HashMap<String, Integer> productNameToCount = new HashMap<String, Integer>();
+    HashMap<String, Integer> serviceNameToCount = new HashMap<String, Integer>();
+    Button button;
+    BarChart barChart;
+    BarChart barChart2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+        button = findViewById(R.id.btn);
+        barChart = findViewById(R.id.chart1);
+        barChart2 = findViewById(R.id.chart2);
         getProduct();
+        getService();
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(barChart.getVisibility() == View.VISIBLE)
+                {
+                    button.setText("Product");
+                    barChart.setVisibility(View.GONE);
+                    barChart2.setVisibility(View.VISIBLE);
+                }
+                else {
+                    button.setText("Service");
+                    barChart.setVisibility(View.VISIBLE);
+                    barChart2.setVisibility(View.GONE);
+                }
+            }
+        });
 
         setTitle("Dashboard");
 
@@ -64,7 +90,7 @@ public class DashboardActivity extends AppCompatActivity {
         ArrayList<String> xValues = new ArrayList<String>();
         ArrayList<String> productName = new ArrayList<String>();
 
-        BarChart barChart = findViewById(R.id.chart1);
+//        BarChart barChart = findViewById(R.id.chart1);
         barChart.getAxisRight().setDrawLabels(false);
 
 //        /AllSalon/Kedah/Branch/e6bTnUKZe9UhHos5PKNy/Invoices/2kuLQ8f77i82LxEIbJp1
@@ -144,6 +170,91 @@ public class DashboardActivity extends AppCompatActivity {
 
                 }
             });
+
+    }
+    private void getService()
+    {
+        ArrayList<String> xValues = new ArrayList<String>();
+        ArrayList<String> serviceName = new ArrayList<String>();
+
+//        BarChart barChart = findViewById(R.id.chart2);
+        barChart2.getAxisRight().setDrawLabels(false);
+
+//        /AllSalon/Kedah/Branch/e6bTnUKZe9UhHos5PKNy/Invoices/2kuLQ8f77i82LxEIbJp1
+        FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(Common.state_name)
+                .collection("Branch")
+                .document(Common.selectedSalon.getSalonId())
+                .collection("Invoices")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Invoice invoice = document.toObject(Invoice.class);
+                                List<BarberServices> servicesItemList = invoice.getBarberServices();
+
+
+                                for(int i=0;i< servicesItemList.size();i++){
+                                    String currentServiceName = servicesItemList.get(i).getName();
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                        serviceNameToCount.put(currentServiceName
+                                                ,serviceNameToCount.getOrDefault(currentServiceName,0)+1);
+                                        addUniqueProduct(xValues,currentServiceName);
+
+                                    }
+
+                                }
+
+                            }
+                            //HERE DISPLAY TOTAL OF QUANTITY OF EACH ITEM
+                            //PASS KEY AND VALUE TO HERE
+                            ArrayList<BarEntry> service = new ArrayList<>();
+                            for(int i=0;i< xValues.size();i++){
+                                //add String stored in xValues into productName
+                                serviceName.add(xValues.get(i));
+                                //pass product name and productQty based on productName
+                                service.add(new BarEntry(i,serviceNameToCount.get(serviceName.get(i))));
+
+                            }
+
+                            BarDataSet barDataSet = new BarDataSet(service, "Service Name");
+                            barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                            barDataSet.setValueTextSize(10f);
+
+                            BarData barData = new BarData(barDataSet);
+                            barChart2.setData(barData);
+                            barChart2.setFitBars(true);
+                            barChart2.getDescription().setEnabled(false);
+                            barChart2.invalidate();
+                            barChart2.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+                            XAxis xAxis = barChart2.getXAxis();
+                            xAxis.setLabelRotationAngle(270);
+                            YAxis yAxis = barChart2.getAxisLeft();
+                            yAxis.setAxisMaximum(0);
+                            yAxis.setAxisMaximum(20);
+                            yAxis.setAxisLineWidth(2f);
+                            yAxis.setAxisLineColor(android.R.color.black);
+                            yAxis.setLabelCount(10);
+                            barChart2.getXAxis().setValueFormatter(new IndexAxisValueFormatter(serviceName));
+                            barChart2.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                            barChart2.setVisibleXRangeMaximum(10);
+                            barChart2.getXAxis().setGranularity(1);
+                            barChart2.getXAxis().setGranularityEnabled(true);
+                            barChart2.notifyDataSetChanged();
+
+
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+
+                        }
+                        //Revise from qty of product from productNameToCount
+//                    Log.d(TAG,"TESTING" + productNameToCount);
+
+                    }
+                });
 
     }
     private void addUniqueProduct(ArrayList<String>list, String product)

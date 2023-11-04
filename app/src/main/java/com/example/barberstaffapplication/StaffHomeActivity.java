@@ -123,8 +123,12 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if(item.getItemId() == R.id.menu_dashboard)
                     startActivity(new Intent(StaffHomeActivity.this, DashboardActivity.class));
+                else if (item.getItemId() == R.id.menu_inventory)
+                    startActivity(new Intent(StaffHomeActivity.this, ProductActivity.class));
                 else if (item.getItemId() == R.id.menu_exit)
                     logOut();
+
+
                 return true;
             }
         });
@@ -190,6 +194,7 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
                         mainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         mainActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivity);
+                        Toast.makeText(StaffHomeActivity.this, "Log Out Successful!", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -202,7 +207,6 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
 
     private void loadAvailableTimeSlotOfBarber(String barberId, String bookDate) {
         dialog.show();
-
 
         //Get information of barber
         barberDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -307,20 +311,21 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to exit ?")
-                .setCancelable(false)
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(StaffHomeActivity.this, "Fake Function Exit", Toast.LENGTH_SHORT).show();
-                    }
-                }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                }).show();
+//        new AlertDialog.Builder(this)
+//                .setMessage("Are you sure you want to exit ?")
+//                .setCancelable(false)
+//                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        Toast.makeText(StaffHomeActivity.this, "Fake Function Exit", Toast.LENGTH_SHORT).show();
+//                    }
+//                }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        dialogInterface.dismiss();
+//                    }
+//                }).show();
+        logOut();
     }
 
     @Override

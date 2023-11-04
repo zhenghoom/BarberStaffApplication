@@ -66,14 +66,14 @@ public class ShoppingFragment extends BottomSheetDialogFragment implements IShop
     @OnClick(R.id.chip_hair_care)
     void hairCareLoadClick(){
         setSelectedChip(chip_hair_care);
-        loadShoppingItem("HairCare");
+        loadShoppingItem("Hair Care");
     }
     @BindView(R.id.chip_body_care)
     Chip chip_body_care;
     @OnClick(R.id.chip_body_care)
     void bodyCareLoadClick(){
         setSelectedChip(chip_body_care);
-        loadShoppingItem("BodyCare");
+        loadShoppingItem("Body Care");
     }
 
     @BindView(R.id.recycler_items)

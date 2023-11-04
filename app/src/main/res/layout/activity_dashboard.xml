@@ -5,12 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="50px"
-    tools:context=".DashboardActivity">
-    
+    tools:context=".DashboardActivity"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn"
+        android:text="Service"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart2"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
